@@ -1,9 +1,6 @@
 {
   "name": "tradfri-mqtt",
-  "version": "0.0.1",
-  "scripts": {
-    "start": "node ./bin/www"
-  },
+  "version": "0.0.2",
   "author": {
     "name": "bonan",
     "email": "npm@bonan.se"
@@ -12,7 +9,7 @@
     "url": "https://github.com/hemtjanst/tradfri-mqtt/issues"
   },
   "bin": {
-    "tradfri-mqtt": "lib/cli.js"
+    "tradfri-mqtt": "tradfri-mqtt.js"
   },
   "main": "index.js",
   "contributors": [

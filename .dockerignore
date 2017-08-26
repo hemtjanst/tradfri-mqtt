@@ -1,0 +1,10 @@
+src/
+node_modules/
+.dockerignore
+.gitignore
+.npmignore
+Dockerfile
+LICENSE
+README.md
+tsconfig.json
+tslint.json

@@ -7,7 +7,7 @@ import Observer from "./observer";
 import Command from "./command";
 let debug = dbgModule("tradfri-mqtt");
 
-let version = "0.0.1";
+let version = "0.0.2";
 
 let opts = [
     {
@@ -41,6 +41,16 @@ let opts = [
 ];
 
 let args = cliArgs(opts);
+
+if (!args.gateway) {
+    args.gateway = process.env["TRADFRI_GATEWAY"];
+}
+if (!args.psk) {
+    args.psk = process.env["TRADFRI_PSK"];
+}
+if (!args.mqtt) {
+    args.mqtt = process.env["MQTT_ADDRESS"];
+}
 
 if (args.help || !args.gateway || !args.psk || !args.mqtt) {
 

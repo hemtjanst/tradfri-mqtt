@@ -1,13 +1,13 @@
 # Trådfri-MQTT
+This project mirrors most of the Trådfri gateways endpoints into MQTT and can be 
+used to send commands to the Trådfri gateway over MQTT
 
-
-## Install
+## Using NPM
+Installing via NPM:
 
 ```bash
 npm install -g tradfri-mqtt
 ```
-
-## Usage
 
 To start the service:
 ```bash
@@ -17,6 +17,18 @@ To start the service:
 
 tradfri-mqtt -g 192.168.0.99 -p abcdefgh -a tcp://127.0.0.1:1883
 ```
+
+## Using docker
+
+```bash
+docker run -d \
+  --name tradfri-mqtt \
+  --env TRADFRI_GATEWAY=192.168.0.99 \
+  --env TRADFRI_PSK=abcdefgh \
+  --env MQTT_ADDRESS=tcp://127.0.0.1:1883 \
+  bonan/tradfri-mqtt
+```
+
 
 ## Getting updates
 
@@ -64,7 +76,9 @@ export declare type TfReply = {
 }
 ```
 
-### Sample request
+### Sample requests
+
+#### Put request
 Sent to the `tradfri-cmd` topic:
 ```json
 {
@@ -78,16 +92,6 @@ Sent to the `tradfri-cmd` topic:
 }
 ```
 
-```json
-{
-  "method": "get",
-  "url": "15004/162515",
-  "id": "group-get",
-  "replyTopic": "tradfri-reply/xyz"
-}
-```
-
-### Sample response
 Received from the `tradfri-reply/xyz` topic:
 ```json
 {
@@ -98,6 +102,19 @@ Received from the `tradfri-reply/xyz` topic:
 }
 ```
 
+#### Get request
+
+Sent to the `tradfri-cmd` topic:
+```json
+{
+  "method": "get",
+  "url": "15004/162515",
+  "id": "group-get",
+  "replyTopic": "tradfri-reply/xyz"
+}
+```
+
+Received from the `tradfri-reply/xyz` topic:
 ```json
 {
   "id": "group-get",
@@ -106,12 +123,12 @@ Received from the `tradfri-reply/xyz` topic:
   "payload": {
     "5850": 1,
     "5851": 0,
-    "9001": "Office",
+    "9001": "Name of group",
     "9002": 1498068278,
     "9003": 162515,
     "9018": {
       "15002": {
-        "9003": [65546]
+        "9003": [65546,65547,65548]
       }
     },
     "9039": 220248
