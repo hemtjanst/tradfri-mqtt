@@ -1,0 +1,46 @@
+{
+  "name": "tradfri-mqtt",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "author": {
+    "name": "bonan",
+    "email": "npm@bonan.se"
+  },
+  "bugs": {
+    "url": "https://github.com/hemtjanst/tradfri-mqtt/issues"
+  },
+  "bin": {
+    "tradfri-mqtt": "lib/cli.js"
+  },
+  "main": "index.js",
+  "contributors": [
+    {
+      "name": "bonan",
+      "email": "npm@bonan.se"
+    }
+  ],
+  "dependencies": {
+    "debug": "3.0.1",
+    "mqtt": "2.12.0",
+    "node-coap-client": "0.2.0",
+    "command-line-args": "4.0.7",
+    "command-line-usage": "4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "8.0.22"
+  },
+  "homepage": "https://github.com/hemtjanst/tradfri-mqtt",
+  "keywords": [
+    "tradfri",
+    "mqtt",
+    "hemtjanst"
+  ],
+  "license": "Apache-2.0",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hemtjanst/tradfri-mqtt"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "declaration": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmitOnError": false,
+    "noImplicitAny": false,
+    "outDir": "lib/",
+    "removeComments": false,
+    "sourceMap": true,
+    "sourceRoot": "src/",
+    "target": "es5",
+    "lib": ["es6"]
+  }
+}

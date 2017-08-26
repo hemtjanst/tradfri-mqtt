@@ -1,0 +1,9 @@
+.idea/
+lib/
+*.log
+*.pid
+node_modules/
+.npm
+.eslintcache
+*.tgz
+.env
