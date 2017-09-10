@@ -1,3 +1,6 @@
+.gitignore
+.dockerignore
+Dockerfile
 .idea/
 src/
 *.log

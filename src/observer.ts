@@ -18,6 +18,7 @@ export default class Observer {
     private mqtt: MqttClient;
     private baseUrl: string;
     private pingInterval: number;
+    private pingFail: number = 0;
     private pingTimeout: number;
     private sendTimeout: number;
     private dequeInterval: number;
@@ -30,15 +31,15 @@ export default class Observer {
         this.mqtt = opts.mqtt;
         this.pingTimeout = opts.pingTimeout || 30000;
         this.sendTimeout = opts.sendTimeout || 2000;
-        this.pingInterval = opts.pingInterval || 120000;
+        this.pingInterval = opts.pingInterval || 60000;
         this.dequeInterval = opts.dequeInterval || 100;
         if (this.pingInterval <= this.pingTimeout) {
             throw new Error("pingInterval must be more than pingTimeout")
         }
         this.pingInterval = this.pingInterval - this.pingTimeout;
         this.baseUrl = opts.coapUrl;
-        this.reset();
         this.ping();
+        this.init();
     }
 
     public enqueue (f:() => Promise<any>) {
@@ -56,12 +57,16 @@ export default class Observer {
         }
         this.queueTimer = undefined;
         this.observers = {};
+        this.init();
+    };
+
+    private init() {
         this.observe("15001");
         this.observe("15004");
         this.observe("15005");
         this.observe("15006");
         this.observe("15011/15012");
-    };
+    }
 
     public url(): string {
         return this.baseUrl;
@@ -72,8 +77,12 @@ export default class Observer {
         setTimeout(() => {
             setTimeout(() => { this.ping(); }, this.pingInterval);
             if (!done) {
-                console.warn("Timed out, resetting session");
-                this.reset();
+                if (++this.pingFail > 2) {
+                    console.warn("Timed out, resetting session");
+                    this.reset();
+                }
+            } else {
+                this.pingFail = 0
             }
         }, this.pingTimeout);
         let once = false;

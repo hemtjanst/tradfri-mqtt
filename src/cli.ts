@@ -7,7 +7,7 @@ import Observer from "./observer";
 import Command from "./command";
 let debug = dbgModule("tradfri-mqtt");
 
-let version = "0.0.2";
+let version = "0.0.3";
 
 let opts = [
     {
@@ -71,7 +71,10 @@ if (args.help || !args.gateway || !args.psk || !args.mqtt) {
         }
     ]))
 } else {
-    let mqtt = connect(args.mqtt, {keepalive: 30});
+    let mqtt = connect(args.mqtt, {
+        keepalive: 30,
+        clientId: `tradfri-mqtt-${args.gateway}`
+    });
     let coapUrl = `coaps://${args.gateway}:5684/`;
     coap.setSecurityParams(args.gateway, {psk: {"Client_identity": args.psk}});
 
