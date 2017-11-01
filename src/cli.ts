@@ -5,6 +5,7 @@ import * as cliArgs from "command-line-args";
 import * as cliUsage from "command-line-usage";
 import Observer from "./observer";
 import Command from "./command";
+import {TradfriAuth} from "./tradfri";
 let debug = dbgModule("tradfri-mqtt");
 
 let version = "0.0.3";
@@ -32,6 +33,27 @@ let opts = [
         typeLabel: 'tcp://[underline]{127.0.0.1}:1883'
     },
     {
+        name: 'username',
+        alias: 'u',
+        type: String,
+        description: "Trådfri authentication username",
+        typeLabel: "[userline]{node-tradfri-mqtt}"
+    },
+    {
+        name: 'token',
+        alias: 't',
+        type: String,
+        description: "Trådfri authentication token",
+        typeLabel: "[underline]{abcd...}"
+    },
+    {
+        name: 'storage',
+        alias: 's',
+        type: String,
+        description: "Path to store persistent data",
+        typeLabel: '[underline]{/var/lib/tradfri-mqtt}'
+    },
+    {
         name: 'help',
         alias: 'h',
         type: Boolean,
@@ -51,8 +73,17 @@ if (!args.psk) {
 if (!args.mqtt) {
     args.mqtt = process.env["MQTT_ADDRESS"];
 }
+if (!args.token) {
+    args.token = process.env["TRADFRI_TOKEN"];
+}
+if (!args.username) {
+    args.username = process.env["TRADFRI_USERNAME"];
+}
+if (!args.storage) {
+    args.stop = process.env["TRADFRI_STORAGE"];
+}
 
-if (args.help || !args.gateway || !args.psk || !args.mqtt) {
+if (args.help || !args.gateway || !args.mqtt) {
 
     console.log(cliUsage([
         {
@@ -71,16 +102,33 @@ if (args.help || !args.gateway || !args.psk || !args.mqtt) {
         }
     ]))
 } else {
-    let mqtt = connect(args.mqtt, {
-        keepalive: 30,
-        clientId: `tradfri-mqtt-${args.gateway}`
-    });
-    let coapUrl = `coaps://${args.gateway}:5684/`;
-    coap.setSecurityParams(args.gateway, {psk: {"Client_identity": args.psk}});
 
-    let observer = new Observer({
-        mqtt: mqtt,
-        coapUrl: coapUrl
-    });
-    let command = new Command(observer, mqtt);
+    TradfriAuth(args.gateway, {
+        storage: args.storage,
+        psk: args.psk,
+        username: args.username,
+        token: args.token
+    }).then((auth) => {
+        debug(`Got auth: ${auth}`);
+        let mqtt = connect(args.mqtt, {
+            keepalive: 30,
+            clientId: `tradfri-mqtt-${args.gateway}`
+        });
+        let coapUrl = `coaps://${args.gateway}:5684/`;
+
+        debug(`Starting Observer`);
+        let observer = new Observer({
+            mqtt: mqtt,
+            coapUrl: coapUrl
+        });
+        let command = new Command(observer, mqtt);
+    }, (err) => {
+        console.log("Authentication rejected");
+        console.error(err);
+        process.exit(1);
+    }).catch((err) => {
+        console.log("Exception thrown in authentication process");
+        console.error(err);
+        process.exit(1);
+    })
 }

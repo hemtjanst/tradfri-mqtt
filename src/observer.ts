@@ -89,10 +89,14 @@ export default class Observer {
         this.enqueue(async () => {
             if (once) return;
             once = true;
-            debug(`Sending ping`);
-            let ret = await coap.request(`${this.baseUrl}status`, "get");
-            debug(`Ping response: ${ret.code} ${ret.payload.toString()}`);
-            done = true;
+            try {
+                debug(`Sending ping`);
+                await coap.ping(this.baseUrl);
+                done = true;
+            } catch (err) {
+                console.error(`Error while pinging target ${this.baseUrl}`);
+                console.error(err);
+            }
         });
     };
 
@@ -149,20 +153,31 @@ export default class Observer {
 
     private onUpdate(url: string, r: CoapResponse) {
         let payload = r.payload.toString();
+        debug(`Got update for ${url}: ${payload}`);
         this.mqtt.publish("tradfri-raw/" + url, payload, {qos: 1, retain: true, dup: false}, undefined);
         if (url === "15001" || url === "15004" || url === "15005") {
             // Contents should be an array of sub id:s
-            let arr: number[] = JSON.parse(payload);
-            for (let i in arr) {
-                this.observe(url + "/" + arr[i]);
+            try {
+                let arr: number[] = JSON.parse(payload);
+                for (let i in arr) {
+                    this.observe(url + "/" + arr[i]);
+                }
+            } catch (err) {
+                console.error(`In observe ${url} response (${payload}):`);
+                console.error(err);
             }
         }
         if (url.substr(0, 6) == "15005/") {
             let sp = url.split("/");
             if (sp.length == 2) {
-                let arr: number[] = JSON.parse(payload);
-                for (let i in arr) {
-                    this.observe(url + "/" + arr[i]);
+                try {
+                    let arr: number[] = JSON.parse(payload);
+                    for (let i in arr) {
+                        this.observe(url + "/" + arr[i]);
+                    }
+                } catch (err) {
+                    console.error(`In observe ${url} response (${payload}):`);
+                    console.error(err);
                 }
             }
         }
