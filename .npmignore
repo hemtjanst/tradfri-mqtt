@@ -11,3 +11,4 @@ node_modules/
 *.tgz
 .env
 package-lock.json
+auth.json
