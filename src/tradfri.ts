@@ -112,6 +112,7 @@ export function TradfriAuth(gateway: string, opts?: AuthOpts): Promise<{username
     };
 
     let connect = async () => {
+        coap.reset(gateway);
         coap.setSecurityParams(gateway, securityParams());
         await coap.tryToConnect(coapUrl);
     };
