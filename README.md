@@ -21,13 +21,30 @@ tradfri-mqtt -g 192.168.0.99 -p abcdefgh -a tcp://127.0.0.1:1883
 ## Using docker
 
 ```bash
+docker volume create tradfri-mqtt-data
 docker run -d \
   --name tradfri-mqtt \
+  --volume tradfri-mqtt-data:/data \
   --env TRADFRI_GATEWAY=192.168.0.99 \
   --env TRADFRI_PSK=abcdefgh \
   --env MQTT_ADDRESS=tcp://127.0.0.1:1883 \
   bonan/tradfri-mqtt
 ```
+
+For armv7 (i.e. raspberry pi 3+), use bonan/tradfri-mqtt:arm7
+
+## Arguments
+
+|Argument                       |Alias|Environment Var  |Description                                |Default      |
+|-------------------------------|-----|-----------------|-------------------------------------------|-------------|
+|`--gateway <ip>`               |`-g` |TRADFRI_GATEWAY  |IP Address of Trådfri Gateway              |**Required** |
+|`--psk <key>`                  |`-p` |TRADFRI_PSK      |Pre-shared key of gateway                  |             |
+|`--mqtt tcp://mqtt-broker:1883`|`-a` |MQTT_ADDRESS     |Address of MQTT broker                     |**Required** |
+|`--topicPrefix <topic>`        |`-x` |MQTT_TOPIC_PREFIX|Topic prefix                               |`tradfri-raw`|
+|`--topicCommand <topic>`       |`-c` |MQTT_TOPIC_CMD   |Topic for commands                         |`tradfri-cmd`|
+|`--username <username>`        |`-u` |TRADFRI_USERNAME |Username for authentication token          |             |
+|`--token <token>`              |`-t` |TRADFRI_TOKEN    |Authentication token (not the same as PSK!)|             |
+|`--storage <path>`             |`-s` |TRADFRI_STORAGE  |Path to store data in                      |             |
 
 
 ## Getting updates
@@ -49,7 +66,7 @@ The payload should be a json-encoded string matching the definition:
 ```typescript
 export declare type TfCommand = {
     // CoAP Method
-    method: "get" | "post" | "put" | "delete",
+    method: "get" | "post" | "put" | "delete" | "reset",
     // URL without any prefixes, i.e. "15001/65540"
     url: string,
     // Optional id of the request, will be included in the reply
