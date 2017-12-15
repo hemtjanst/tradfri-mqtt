@@ -1,4 +1,3 @@
-import {CoapClient as coap} from "node-coap-client";
 import {connect} from "mqtt";
 import * as dbgModule from "debug";
 import * as cliArgs from "command-line-args";

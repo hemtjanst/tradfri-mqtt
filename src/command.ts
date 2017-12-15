@@ -85,7 +85,7 @@ export default class Command {
                             payload = Buffer.from(JSON.stringify(obj.payload));
                         }
                     }
-                    const resp = await coap.request(full, obj.method, payload);
+                    const resp = await coap.request(full, <RequestMethod>obj.method, payload);
                     if (obj.replyTopic) {
                         this.mqtt.publish(obj.replyTopic, JSON.stringify({
                             id: obj.id ? obj.id : null,
@@ -99,12 +99,12 @@ export default class Command {
                         }));
                     }
                 } catch (err) {
-                    console.error(`Error executing MQTT command: ${payload.toString()}`)
+                    console.error(`Error executing MQTT command: ${payload.toString()}`);
                     console.error(err);
                 }
             });
         } catch (err) {
-            console.error(`Error Parsing MQTT command: ${payload.toString()}`)
+            console.error(`Error Parsing MQTT command: ${payload.toString()}`);
             console.error(err);
         }
     }
