@@ -74,10 +74,10 @@ export default class Command {
                     } else {
                         switch (typeof obj.payload) {
                             case "string":
-                                payload = Buffer.from(obj.payload);
+                                payload = Buffer.from(obj.payload.toString());
                                 break;
                             case "object":
-                                payload = Buffer.from(JSON.stringify(obj.payload));
+                                payload = Buffer.from(JSON.stringify(obj.payload.toString()));
                                 break;
                         }
                     }
