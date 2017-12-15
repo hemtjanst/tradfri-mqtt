@@ -5,7 +5,7 @@ import {CoapClient as coap, RequestMethod} from "node-coap-client";
 
 export declare type TfCommand = {
     // CoAP Method
-    method: "get" | "post" | "put" | "delete",
+    method: "get" | "post" | "put" | "delete" | "reset",
     // URL without any prefixes, i.e. "15001/65540"
     url: string,
     // Optional id of the request, will be included in the reply
@@ -32,12 +32,16 @@ export default class Command {
 
     private observer: Observer;
     private mqtt: MqttClient;
+    private commandTopic: string;
 
-    constructor(observer: Observer, mqtt: MqttClient) {
+    constructor(observer: Observer, mqtt: MqttClient, commandTopic?: string) {
         this.observer = observer;
         this.mqtt = mqtt;
+        this.commandTopic = commandTopic || "tradfri-cmd";
         mqtt.on("connect", () => {
-                mqtt.subscribe("tradfri-cmd");
+                mqtt.subscribe(this.commandTopic);
+
+                // Keep for compatability, reset should be sent to commandTopic with payload {"method":"reset"}
                 mqtt.subscribe("tradfri-reset");
             })
             .on("message", (topic: string, payload: Buffer, packet: Packet) => {
@@ -49,7 +53,7 @@ export default class Command {
         if (topic === "tradfri-reset") {
             return this.observer.reset();
         }
-        if (topic !== "tradfri-cmd") {
+        if (topic !== this.commandTopic) {
             return;
         }
         try {
@@ -65,6 +69,9 @@ export default class Command {
                     obj.method = "get";
                 }
             }
+            if (obj.method == "reset") {
+                return this.observer.reset();
+            }
             this.observer.enqueue(async () => {
                 try {
                     let full = `${this.observer.url()}${obj.url}`;
@@ -72,13 +79,10 @@ export default class Command {
                     if (obj.payload instanceof Buffer) {
                         payload = obj.payload;
                     } else {
-                        switch (typeof obj.payload) {
-                            case "string":
-                                payload = Buffer.from(obj.payload);
-                                break;
-                            case "object":
-                                payload = Buffer.from(JSON.stringify(obj.payload));
-                                break;
+                        if (typeof obj.payload === "string") {
+                            payload = Buffer.from(obj.payload);
+                        } else if (typeof obj.payload === "object") {
+                            payload = Buffer.from(JSON.stringify(obj.payload));
                         }
                     }
                     const resp = await coap.request(full, obj.method, payload);

@@ -33,6 +33,20 @@ let opts = [
         typeLabel: 'tcp://[underline]{127.0.0.1}:1883'
     },
     {
+        name: 'topicPrefix',
+        alias: 'x',
+        type: String,
+        description: "MQTT Topic Prefix",
+        typeLabel: '[underline]{tradfri-raw}'
+    },
+    {
+        name: 'topicCommand',
+        alias: 'c',
+        type: String,
+        description: "MQTT Topic for Commands",
+        typeLabel: '[underline]{tradfri-cmd}'
+    },
+    {
         name: 'username',
         alias: 'u',
         type: String,
@@ -73,6 +87,12 @@ if (!args.psk) {
 if (!args.mqtt) {
     args.mqtt = process.env["MQTT_ADDRESS"];
 }
+if (!args.topicPrefix) {
+    args.topicPrefix = process.env["MQTT_TOPIC_PREFIX"] || "tradfri-raw";
+}
+if (!args.topicCommand) {
+    args.topicCommand = process.env["MQTT_TOPIC_CMD"] || "tradfri-cmd";
+}
 if (!args.token) {
     args.token = process.env["TRADFRI_TOKEN"];
 }
@@ -80,7 +100,7 @@ if (!args.username) {
     args.username = process.env["TRADFRI_USERNAME"];
 }
 if (!args.storage) {
-    args.stop = process.env["TRADFRI_STORAGE"];
+    args.storage = process.env["TRADFRI_STORAGE"];
 }
 
 if (args.help || !args.gateway || !args.mqtt) {
@@ -109,7 +129,7 @@ if (args.help || !args.gateway || !args.mqtt) {
         username: args.username,
         token: args.token
     }).then((auth) => {
-        debug(`Got auth: ${auth}`);
+        debug(`Got auth: ${auth.username} / ${auth.token}`);
         let mqtt = connect(args.mqtt, {
             keepalive: 30,
             clientId: `tradfri-mqtt-${args.gateway}`
@@ -119,9 +139,10 @@ if (args.help || !args.gateway || !args.mqtt) {
         debug(`Starting Observer`);
         let observer = new Observer({
             mqtt: mqtt,
-            coapUrl: coapUrl
+            coapUrl: coapUrl,
+            topicPrefix: args.topicPrefix
         });
-        let command = new Command(observer, mqtt);
+        let command = new Command(observer, mqtt, args.topicCommand);
     }, (err) => {
         console.log("Authentication rejected");
         console.error(err);

@@ -11,6 +11,7 @@ export declare type Opts = {
     pingTimeout?: number,
     sendTimeout?: number,
     dequeInterval?: number,
+    topicPrefix?: string,
 }
 
 export default class Observer {
@@ -25,6 +26,7 @@ export default class Observer {
     private observers: {[url:string]: boolean} = {};
     private queue: (() => Promise<any>)[] = [];
     private queueTimer: NodeJS.Timer|0;
+    private topicPrefix: string;
 
 
     constructor(opts: Opts) {
@@ -33,6 +35,7 @@ export default class Observer {
         this.sendTimeout = opts.sendTimeout || 2000;
         this.pingInterval = opts.pingInterval || 60000;
         this.dequeInterval = opts.dequeInterval || 100;
+        this.topicPrefix = opts.topicPrefix || 'tradfri-raw';
         if (this.pingInterval <= this.pingTimeout) {
             throw new Error("pingInterval must be more than pingTimeout")
         }
@@ -105,11 +108,9 @@ export default class Observer {
         let len = this.queue.length;
 
         if (len == 0) {
-            debug(`No jobs in queue, pausing`);
             this.queueTimer = undefined;
             return;
         }
-        debug(`Dequeing, ${len} objects remaining`);
 
         let f = this.queue.shift();
         let timeout = setTimeout(() => {
@@ -140,9 +141,7 @@ export default class Observer {
         };
         f().then(
             (s) => {
-                debug(`Done`);
                 if (typeof next !== "undefined") {
-                    debug(`Calling next()`);
                     next();
                 }
             },
@@ -154,7 +153,7 @@ export default class Observer {
     private onUpdate(url: string, r: CoapResponse) {
         let payload = r.payload.toString();
         debug(`Got update for ${url}: ${payload}`);
-        this.mqtt.publish("tradfri-raw/" + url, payload, {qos: 1, retain: true, dup: false}, undefined);
+        this.mqtt.publish(this.topicPrefix + "/" + url, payload, {qos: 1, retain: true, dup: false}, undefined);
         if (url === "15001" || url === "15004" || url === "15005") {
             // Contents should be an array of sub id:s
             try {
@@ -193,6 +192,10 @@ export default class Observer {
             let full = `${this.baseUrl}${url}`;
             await coap.observe(full, "get", (r: CoapResponse) => {
                 this.onUpdate(url, r);
+            }, undefined, {
+                keepAlive: true,
+                confirmable: true,
+                retransmit: true
             });
             this.observers[url] = true;
         });
