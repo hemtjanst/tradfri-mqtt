@@ -1,7 +1,8 @@
 
-import {MqttClient} from "mqtt";
+import {IClientPublishOptions, MqttClient, PacketCallback} from "mqtt";
 import {CoapClient as coap, CoapResponse} from "node-coap-client";
 import * as dbgModule from "debug";
+import {parseCoreLinks} from "./corelink";
 let debug = dbgModule("tradfri-observer");
 
 export declare type Opts = {
@@ -26,6 +27,9 @@ export default class Observer {
     private observers: {[url:string]: boolean} = {};
     private queue: (() => Promise<any>)[] = [];
     private queueTimer: NodeJS.Timer|0;
+    private discoverTimer: NodeJS.Timer|0;
+    private discoverFail: number = 0;
+    private discoverPayload: string;
     private topicPrefix: string;
 
 
@@ -53,22 +57,62 @@ export default class Observer {
     };
 
     public reset() {
+        debug(`Resetting CoAP connection`);
         coap.reset();
         this.queue = [];
         if (this.queueTimer !== 0 && typeof this.queueTimer !== "undefined") {
             clearTimeout(this.queueTimer);
+        }
+        if (this.discoverTimer !== 0 && typeof this.discoverTimer !== 'undefined') {
+            clearTimeout(this.discoverTimer);
         }
         this.queueTimer = undefined;
         this.observers = {};
         this.init();
     };
 
+    private discover() {
+        this.discoverTimer = 0;
+        if (this.discoverFail >= 3) {
+            this.discoverFail = 0;
+            this.reset();
+            return;
+        }
+        this.enqueue(async () => {
+            try {
+                debug("Fetching well-known endpoints");
+                let url = `.well-known/core`;
+                let resp = await coap.request(`${this.baseUrl}${url}`, 'get');
+                let payload = resp.payload ? resp.payload.toString() : '';
+                if (typeof this.discoverPayload === 'undefined' || this.discoverPayload !== payload) {
+                    this.onUpdate(url, resp);
+                    this.discoverPayload = payload;
+                    if (resp.code.major === 2 && resp.format === 40) {
+                        let links = parseCoreLinks(resp.payload);
+                        for (let url in links) {
+                            if (!links.hasOwnProperty(url)) continue;
+                            if (links[url].obs) {
+                                this.observe(url.replace(/^\/+/g, ''));
+                            }
+                        }
+                    } else {
+                        console.error(`Unknown reply for ${url}`, resp);
+                        this.discoverFail++;
+                    }
+                }
+            } catch (e) {
+                console.error("Error discovering Trådfri endpoints", e);
+                this.discoverFail++;
+            }
+            this.discoverTimer = setTimeout(
+                () => { this.discover(); },
+                300000
+            );
+        });
+    }
+
     private init() {
-        this.observe("15001");
-        this.observe("15004");
-        this.observe("15005");
-        this.observe("15006");
-        this.observe("15011/15012");
+        this.discover();
     }
 
     public url(): string {
@@ -149,11 +193,17 @@ export default class Observer {
             .catch(onErr);
     };
 
+    private publish(topic: string, payload: string, opts: IClientPublishOptions, callback?: PacketCallback) {
+        if (!topic) {
+            return;
+        }
+        this.mqtt.publish(topic, payload, opts, callback);
+    }
 
     private onUpdate(url: string, r: CoapResponse) {
         let payload = r.payload.toString();
         debug(`Got update for ${url}: ${payload}`);
-        this.mqtt.publish(this.topicPrefix + "/" + url, payload, {qos: 1, retain: true, dup: false}, undefined);
+        this.publish(this.topicPrefix + "/" + url, payload, {qos: 1, retain: true, dup: false});
         if (url === "15001" || url === "15004" || url === "15005") {
             // Contents should be an array of sub id:s
             try {
