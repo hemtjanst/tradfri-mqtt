@@ -2,7 +2,7 @@ FROM node:alpine
 ADD package.json yarn.lock /app/
 RUN cd /app && \
   mkdir /data && \
-  yarn install || (apk add --update python make g++ && rm -rf /var/cache/apk/* && yarn install)
+  yarn install
 WORKDIR /app/
 ADD . /app/
 RUN chmod a+x tradfri-mqtt.js && \

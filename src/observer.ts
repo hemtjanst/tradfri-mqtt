@@ -70,6 +70,7 @@ export default class Observer {
         if (this.discoverTimer !== 0 && typeof this.discoverTimer !== 'undefined') {
             clearTimeout(this.discoverTimer);
         }
+        this.discoverPayload = undefined;
         this.queueTimer = undefined;
         this.observers = {};
         this.init();
