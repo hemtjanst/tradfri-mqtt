@@ -13,24 +13,27 @@ export declare type Opts = {
     sendTimeout?: number,
     dequeInterval?: number,
     topicPrefix?: string,
+    discoverInterval?: number,
 }
 
 export default class Observer {
 
+    private readonly baseUrl: string;
+    private readonly pingInterval: number;
+    private readonly pingTimeout: number;
+    private readonly dequeInterval: number;
+    private readonly discoverInterval: number;
+    private readonly topicPrefix: string;
+
     private mqtt: MqttClient;
-    private baseUrl: string;
-    private pingInterval: number;
     private pingFail: number = 0;
-    private pingTimeout: number;
     private sendTimeout: number;
-    private dequeInterval: number;
     private observers: {[url:string]: boolean} = {};
     private queue: (() => Promise<any>)[] = [];
     private queueTimer: NodeJS.Timer|0;
     private discoverTimer: NodeJS.Timer|0;
     private discoverFail: number = 0;
     private discoverPayload: string;
-    private topicPrefix: string;
 
 
     constructor(opts: Opts) {
@@ -39,6 +42,7 @@ export default class Observer {
         this.sendTimeout = opts.sendTimeout || 2000;
         this.pingInterval = opts.pingInterval || 60000;
         this.dequeInterval = opts.dequeInterval || 100;
+        this.discoverInterval = opts.discoverInterval || 300000;
         this.topicPrefix = opts.topicPrefix || 'tradfri-raw';
         if (this.pingInterval <= this.pingTimeout) {
             throw new Error("pingInterval must be more than pingTimeout")
@@ -104,10 +108,12 @@ export default class Observer {
                 console.error("Error discovering Trådfri endpoints", e);
                 this.discoverFail++;
             }
-            this.discoverTimer = setTimeout(
-                () => { this.discover(); },
-                300000
-            );
+            if (this.discoverInterval > 0) {
+                this.discoverTimer = setTimeout(
+                    () => { this.discover(); },
+                    this.discoverInterval
+                );
+            }
         });
     }
 

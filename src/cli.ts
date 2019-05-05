@@ -15,56 +15,56 @@ let opts = [
         alias: 'g',
         type: String,
         description: "IP-address of Trådfri gateway",
-        typeLabel: "[underline]{192.168.0.99}"
+        typeLabel: "{underline 192.168.0.99}"
     },
     {
         name: 'psk',
         alias: 'p',
         type: String,
         description: "Pre-shared key printed under the Trådfri gateway",
-        typeLabel: "[underline]{abcd...}"
+        typeLabel: "{underline abcd...}"
     },
     {
         name: 'mqtt',
         alias: 'a',
         type: String,
         description: "MQTT address",
-        typeLabel: 'tcp://[underline]{127.0.0.1}:1883'
+        typeLabel: 'tcp://{underline 127.0.0.1}:1883'
     },
     {
         name: 'topicPrefix',
         alias: 'x',
         type: String,
         description: "MQTT Topic Prefix",
-        typeLabel: '[underline]{tradfri-raw}'
+        typeLabel: '{underline tradfri-raw}'
     },
     {
         name: 'topicCommand',
         alias: 'c',
         type: String,
         description: "MQTT Topic for Commands",
-        typeLabel: '[underline]{tradfri-cmd}'
+        typeLabel: '{underline tradfri-cmd}'
     },
     {
         name: 'username',
         alias: 'u',
         type: String,
         description: "Trådfri authentication username",
-        typeLabel: "[userline]{node-tradfri-mqtt}"
+        typeLabel: "{underline node-tradfri-mqtt}"
     },
     {
         name: 'token',
         alias: 't',
         type: String,
         description: "Trådfri authentication token",
-        typeLabel: "[underline]{abcd...}"
+        typeLabel: "{underline abcd...}"
     },
     {
         name: 'storage',
         alias: 's',
         type: String,
         description: "Path to store persistent data",
-        typeLabel: '[underline]{/var/lib/tradfri-mqtt}'
+        typeLabel: '{underline /var/lib/tradfri-mqtt}'
     },
     {
         name: 'help',
@@ -109,11 +109,12 @@ if (args.help || !args.gateway || !args.mqtt) {
             header: `trådfri-mqtt ${version}`,
             content: "Relays messages between Trådfri gateway and MQTT:\n" +
                 "* Subscribe to tradfri-raw/# to receive updates from Trådfri.\n" +
-                "* Publish to tradfri-cmd to send commands to the gateway",
+                "* Publish to tradfri-cmd to send commands to the gateway\n\n" +
+                "See {blue.underline https://hemtjan.st/tradfri-mqtt} for more info and documentation",
         },
         {
             header: `Usage`,
-            content: `tradfri-mqtt -g [italic]{192.168.0.99} -p [italic]{abcd...} -a [italic]{tcp://127.0.0.1:1883}`,
+            content: `tradfri-mqtt -g {italic 192.168.0.99} -p {italic abcd...} -a {italic tcp://127.0.0.1:1883}`,
         },
         {
             header: "Options",

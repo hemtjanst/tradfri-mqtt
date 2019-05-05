@@ -19,15 +19,15 @@
     }
   ],
   "dependencies": {
-    "command-line-args": "^4.0.7",
-    "command-line-usage": "^4.1.0",
-    "debug": "^3.2.6",
+    "command-line-args": "^5.1.1",
+    "command-line-usage": "^5.0.5",
+    "debug": "^4.1.1",
     "mqtt": "^2.18.8",
-    "node-coap-client": "^0.6.0"
+    "node-coap-client": "^1.0.2"
   },
   "devDependencies": {
-    "@types/node": "8.0.22",
-    "typescript": "^2.9.2"
+    "@types/node": "^12.0.0",
+    "typescript": "^3.4.5"
   },
   "homepage": "https://github.com/hemtjanst/tradfri-mqtt",
   "keywords": [
