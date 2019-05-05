@@ -2,6 +2,8 @@
 This project mirrors most of the Trådfri gateways endpoints into MQTT and can be 
 used to send commands to the Trådfri gateway over MQTT
 
+See [hemtjan.st/tradfri-mqtt](https://hemtjan.st/tradfri-mqtt) for more information
+
 ## Using NPM
 Installing via NPM:
 
@@ -28,10 +30,10 @@ docker run -d \
   --env TRADFRI_GATEWAY=192.168.0.99 \
   --env TRADFRI_PSK=abcdefgh \
   --env MQTT_ADDRESS=tcp://127.0.0.1:1883 \
-  bonan/tradfri-mqtt
+  hemtjanst/tradfri-mqtt
 ```
 
-For armv7 (i.e. raspberry pi 3+), use bonan/tradfri-mqtt:arm7
+For armv7 (i.e. raspberry pi 3+), use hemtjanst/tradfri-mqtt:arm7
 
 ## Arguments
 
