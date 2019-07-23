@@ -1,6 +1,6 @@
 {
   "name": "tradfri-mqtt",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": {
     "name": "bonan",
     "email": "npm@bonan.se"
@@ -22,7 +22,7 @@
     "command-line-args": "^5.1.1",
     "command-line-usage": "^5.0.5",
     "debug": "^4.1.1",
-    "mqtt": "^2.18.8",
+    "mqtt": "^3.0.0",
     "node-coap-client": "^1.0.2"
   },
   "devDependencies": {

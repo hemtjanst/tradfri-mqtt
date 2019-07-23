@@ -1,6 +1,6 @@
 import { Lexer } from './lexer';
 
-declare type CoreLinks = {
+export declare type CoreLinks = {
     [url:string]: {
         [param:string]: boolean|string
     }
