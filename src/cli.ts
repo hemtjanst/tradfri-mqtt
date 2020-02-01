@@ -32,6 +32,20 @@ let opts = [
         typeLabel: 'tcp://{underline 127.0.0.1}:1883'
     },
     {
+        name: 'mqttUsername',
+        alias: 'n',
+        type: String,
+        description: "MQTT username",
+        typeLabel: 'foo'
+    },
+    {
+        name: 'mqttPassword',
+        alias: 'w',
+        type: String,
+        description: "MQTT password",
+        typeLabel: 'bar'
+    },
+    {
         name: 'topicPrefix',
         alias: 'x',
         type: String,
@@ -86,6 +100,12 @@ if (!args.psk) {
 if (!args.mqtt) {
     args.mqtt = process.env["MQTT_ADDRESS"];
 }
+if (!args.mqttUsername) {
+    args.mqttUsername = process.env["MQTT_USERNAME"];
+}
+if (!args.mqttPassword) {
+    args.mqttPassword = process.env["MQTT_PASSWORD"];
+}
 if (!args.topicPrefix) {
     args.topicPrefix = process.env["MQTT_TOPIC_PREFIX"] || "tradfri-raw";
 }
@@ -130,10 +150,19 @@ if (args.help || !args.gateway || !args.mqtt) {
         token: args.token
     }).then((auth) => {
         debug(`Got auth: ${auth.username} / ${auth.token}`);
-        let mqtt = connect(args.mqtt, {
+
+        let opts = {
             keepalive: 30,
             clientId: `tradfri-mqtt-${args.gateway}`
-        });
+        }
+        if (args.mqttPassword) {
+            opts['password'] = args.mqttPassword
+        }
+        if (args.mqttUsername) {
+            opts['username'] = args.mqttUsername
+        }
+
+        let mqtt = connect(args.mqtt, opts);
         let coapUrl = `coaps://${args.gateway}:5684/`;
 
         debug(`Starting Observer`);
