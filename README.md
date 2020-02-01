@@ -1,5 +1,5 @@
 # Trådfri-MQTT
-This project mirrors most of the Trådfri gateways endpoints into MQTT and can be 
+This project mirrors most of the Trådfri gateways endpoints into MQTT and can be
 used to send commands to the Trådfri gateway over MQTT
 
 See [hemtjan.st/tradfri-mqtt](https://hemtjan.st/tradfri-mqtt) for more information
@@ -42,6 +42,8 @@ For armv7 (i.e. raspberry pi 3+), use hemtjanst/tradfri-mqtt:arm7
 |`--gateway <ip>`               |`-g` |TRADFRI_GATEWAY  |IP Address of Trådfri Gateway              |**Required** |
 |`--psk <key>`                  |`-p` |TRADFRI_PSK      |Pre-shared key of gateway                  |             |
 |`--mqtt tcp://mqtt-broker:1883`|`-a` |MQTT_ADDRESS     |Address of MQTT broker                     |**Required** |
+|`--mqttUsername foo`           |`-n` |MQTT_USERNAME    |Username of MQTT broker                    |             |
+|`--mqttPassword bar`           |`-w` |MQTT_PASSWORD    |Password of MQTT broker                    |             |
 |`--topicPrefix <topic>`        |`-x` |MQTT_TOPIC_PREFIX|Topic prefix                               |`tradfri-raw`|
 |`--topicCommand <topic>`       |`-c` |MQTT_TOPIC_CMD   |Topic for commands                         |`tradfri-cmd`|
 |`--username <username>`        |`-u` |TRADFRI_USERNAME |Username for authentication token          |             |
@@ -52,12 +54,12 @@ For armv7 (i.e. raspberry pi 3+), use hemtjanst/tradfri-mqtt:arm7
 ## Getting updates
 
 tradfri-mqtt will try to observe everything that's being published from the gateway, and mirror the messages into
-MQTT with the prefix `tradfri-raw/`. 
+MQTT with the prefix `tradfri-raw/`.
 
-For example, if the trådfri pushes and update for the lightbulb `65554`, the raw json message will be published 
+For example, if the trådfri pushes and update for the lightbulb `65554`, the raw json message will be published
 to the MQTT topic `tradfri-raw/15001/65554`.
 
-Subscribing to `tradfri-raw/#` will give you all messages, `tradfri-raw/15001/#` all accessory 
+Subscribing to `tradfri-raw/#` will give you all messages, `tradfri-raw/15001/#` all accessory
 updates and `tradfri-raw/15004/#` all group updates.
 
 ## Sending commands
@@ -89,8 +91,8 @@ export declare type TfReply = {
     code: string,
     // Format of the response, 50 = json
     format: number,
-    // Payload, if format is json the payload is decoded into an object, 
-    // otherwise it will be a raw string 
+    // Payload, if format is json the payload is decoded into an object,
+    // otherwise it will be a raw string
     payload: string|object,
 }
 ```
