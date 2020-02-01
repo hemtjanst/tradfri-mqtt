@@ -1,6 +1,6 @@
 {
   "name": "tradfri-mqtt",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": {
     "name": "bonan",
     "email": "npm@bonan.se"
@@ -28,6 +28,9 @@
   "devDependencies": {
     "@types/node": "^12.0.0",
     "typescript": "^3.4.5"
+  },
+  "scripts": {
+    "build": "tsc"
   },
   "homepage": "https://github.com/hemtjanst/tradfri-mqtt",
   "keywords": [
