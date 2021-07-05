@@ -7,7 +7,7 @@ import Command from "./command";
 import {TradfriAuth} from "./tradfri";
 let debug = dbgModule("tradfri-mqtt");
 
-let version = "0.1.3";
+let version = "0.1.4";
 
 let opts = [
     {
