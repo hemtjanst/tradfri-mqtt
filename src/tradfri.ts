@@ -48,7 +48,7 @@ export function TradfriAuth(gateway: string, opts?: AuthOpts): Promise<{username
     };
 
     let readConfig = () => {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             if (!authFile) {
                 return resolve();
             }
@@ -78,7 +78,7 @@ export function TradfriAuth(gateway: string, opts?: AuthOpts): Promise<{username
     };
 
     let writeConfig = () => {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             if (!authFile) {
                 return reject(`No storage path provided`);
             }
