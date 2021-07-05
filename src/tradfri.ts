@@ -46,6 +46,8 @@ export function TradfriAuth(gateway: string, opts?: AuthOpts): Promise<{username
 
         return {psk:{"Client_identity":psk}};
     };
+	
+	let compatOptions = { resetAntiReplayWindowBeforeServerHello: true; };
 
     let readConfig = () => {
         return new Promise<void>((resolve, reject) => {
@@ -91,6 +93,7 @@ export function TradfriAuth(gateway: string, opts?: AuthOpts): Promise<{username
 
     let auth = async () => {
         coap.setSecurityParams(gateway, securityParams());
+		coap.setCompatOptions(gateway, compatOptions);
         await coap.tryToConnect(coapUrl);
         let payload = new Buffer(
             JSON.stringify(
@@ -114,6 +117,7 @@ export function TradfriAuth(gateway: string, opts?: AuthOpts): Promise<{username
     let connect = async () => {
         coap.reset(gateway);
         coap.setSecurityParams(gateway, securityParams());
+		coap.setCompatOptions(gateway, compatOptions);
         await coap.tryToConnect(coapUrl);
     };
 
